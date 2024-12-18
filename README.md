@@ -68,15 +68,6 @@ Then there are two functions you can use to disable hardware blocks while sleepi
 Hardware blocks you do not list are unchanged.
 You can call this function more than once.
 Note: If the argument is empty list no changes are made.
-*pwr.disable_while_sleeping_all_but() - arguments to this function are hardware blocks you want enabled when sleeping.
-All blocks you did not list will be disabled.
-Note: If the argument is empty list all blocks will be disabled.
-
-Then there are two functions you can use to disable hardware blocks while sleeping:
-* pwr.disable_while_sleeping() - arguments to this function are hardware blocks you want disabled when sleeping.
-Hardware blocks you do not list are unchanged.
-You can call this function more than once.
-Note: If the argument is empty list no changes are made.
 
 ```
 pwr.disable_while_sleeping(
