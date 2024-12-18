@@ -1,5 +1,10 @@
 # Power Control for RP2 processors
 
+**_Very Important note:_
+With micropython version  1.24.0 or 1.25 preview versions do not use machine.lightsleep() with this code.
+Always use time.sleep_ms() or equivalent.
+machine.lightsleep() will set registers SLEEP_EN0 and SLEEP_EN1 to the power on value when it returns.**
+
 **This repository contains support for power control on RP2040 and RP2350.
 But, I do not have any RP2350 boards at this time so, I have not tested my code on RP2350.
 If you try it tihs code on RP2350 and have problems it will be difficult for me to help.
