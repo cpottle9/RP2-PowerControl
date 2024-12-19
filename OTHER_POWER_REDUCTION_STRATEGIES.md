@@ -4,7 +4,7 @@ Before you make use of the code in this repository you should consider the follo
 
 * If you need extremely low power consider a hardware solution.
 There are several board vendor that provide a capability to completely power down the PICO.
-For example, I use the [PIMORONI Badger W)](https://shop.pimoroni.com/products/badger-2040-w?variant=40514062188627).
+For example, I use the [PIMORONI Badger W](https://shop.pimoroni.com/products/badger-2040-w?variant=40514062188627).
 My application makes use of the e-ink display if you don't need it look for other hardware solutions online.
 It has a small timer chip on board that can be programmed to power down the entire PICO board and wake it up at a specified time.
 * If you have a PICO W or other board with WIFI you can save significant power by turning off the WIFI chip when you don't need it.
