@@ -27,6 +27,24 @@ class PowerCtrlAbstract :
         mem32[self.__SLEEP_EN0] &= ~mask0
         mem32[self.__SLEEP_EN1] &= ~mask1
         
+    # Enable specified hardware blocks while RP2 is sleeping.
+    # If called with no arguments does nothing.
+    #
+    # Note: Not that useful.
+    # Typically users disable given hardware blocks and leave it that way forever.
+    
+    def enable_while_sleeping(self, *args) :
+        mask0 = 0
+        mask1 = 0
+        for arg in args :
+            if arg >= 32 :
+                mask1 |= 1 << (arg - 32)
+            else :
+                mask0 |= 1 << arg
+                
+        mem32[self.__SLEEP_EN0] |= mask0
+        mem32[self.__SLEEP_EN1] |= mask1
+        
     # Disable all but the specified hardware blocks while RP2 is sleeping.
     # If called with no argumentss will disable all hardware blocks.
 
@@ -57,6 +75,24 @@ class PowerCtrlAbstract :
 
         mem32[self.__WAKE_EN0] &= ~mask0
         mem32[self.__WAKE_EN1] &= ~mask1
+        
+    # Enable specified hardware blocks while RP2 is
+    # awake (at least one core running or DMA active),
+    # If called with no arguments does nothing.
+    #
+    # Note: Useful if given hardware blocks are needed occasionally.
+
+    def enable_while_awake(self, *args) :
+        mask0 = 0
+        mask1 = 0
+        for arg in args :
+            if arg >= 32 :
+                mask1 |= 1 << (arg - 32)
+            else :
+                mask0 |= 1 << arg
+
+        mem32[self.__WAKE_EN0] |= mask0
+        mem32[self.__WAKE_EN1] |= mask1
         
     # Disable all but the specified hardware blocks while RP2 is
     # awake(at least one core running or DMA active),

@@ -98,6 +98,18 @@ pwr.disable_while_sleeping_all_but(
     pwr.EN0_CLK_SYS_PLL_USB
 )
 ```
+* pwr.enable_while_sleeping() - arguments to this function are hardware blocks you want enabled when sleeping.
+Hardware blocks you do not list are unchanged.
+You can call this function more than once.
+Note: If the argument is empty list no changes are made.
+This function is not that useful. Included for testing.
+```
+pwr.enable_while_sleeping(
+    pwr.EN0_CLK_SYS_SPI1,
+    pwr.EN0_CLK_PERI_SPI
+)
+
+```
 
 There are two similar functions to disable hardware blocks while sleeping:
 * pwr.disable_while_awake() - arguments to this function are hardware blocks you want disabled when sleeping.
@@ -123,6 +135,18 @@ pwr.disable_while_awake_all_but(
     pwr.EN0_CLK_SYS_I2C1,
     pwr.EN0_CLK_SYS_I2C0
 )
+```
+* pwr.enable_while_awake() - arguments to this function are hardware blocks you want enabled when awake.
+Hardware blocks you do not list are unchanged.
+You can call this function more than once.
+Note: If the argument is empty list no changes are made.
+This function is useful when there is a hardware block you only need occasionally.
+```
+pwr.enable_while_awake(
+    pwr.EN0_CLK_SYS_SPI1,
+    pwr.EN0_CLK_PERI_SPI
+)
+
 ```
 
 The values specified in argument list are constants defined in the PowerCtrl object.
