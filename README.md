@@ -1,15 +1,30 @@
 # Power Control for RP2 processors
 
-**_Very Important note:_
-With micropython version  1.24.0 or 1.25 preview versions do not use machine.lightsleep() with this code.
+## Important notes
+**With micropython version  1.24.0 or 1.25 preview versions do not use machine.lightsleep() with this code.
 Always use time.sleep_ms() or equivalent.
 machine.lightsleep() will set registers SLEEP_EN0 and SLEEP_EN1 to the power on value when it returns.**
 
 **This repository contains support for power control on RP2040 and RP2350.
 But, I do not have any RP2350 boards at this time so, I have not tested my code on RP2350.
-If you try it tihs code on RP2350 and have problems it will be difficult for me to help.
+If you try this code on RP2350 and have problems it will be difficult for me to help.
 I plan to buy some 2350 boards soon.**
 
+## Why not use machine.lightsleep
+
+Yes, rather than using this code you could just use machine.lightsleep.
+While machine.lightsleep is running the RP2040 power consumption is very low.
+
+lightsleep has issues on RP2040 and RP2350.
+The exact issues you see will depend on which version of micropython you are using.
+
+Fundamentally, lightsleep turns of almost all peripheral blocks and if you need one of those blocks active while sleeping you can't use it.
+In micropython version 1.23.0 the USB block would be unusable after a lightsleep.
+That was resolved in 1.24.0.
+
+You can not use lightsleep for instance if you want to wakeup due to an interrupt generated from a button press.
+
+## What this code does
 This micropython code can be used to modify the RP2040 or RP2350 Power Control registers.
 This can reduce power consumed both:
 * while the chip is awake (at least one core is running or DMA is active),
@@ -34,7 +49,7 @@ Power reduction is acheived by disabling clocks to specific hardware blocks.
 If there are hardware blocks you do not need at all you can disable them completely.
 For example if your application does not use SPI you can completely the SPI blocks.
 
-There are several hardware blocks which can always safely be disabled while sleeping only.
+There are several hardware blocks which can always safely be disabled while sleeping.
 They are only needed while awake:
 * SRAM - SRAM contents are preserved while disabled. There a total of 6 SRAM blocks on RP2040 and 10 SRAM blocks on the RP2350.
 * XIP  - eXecute In Place cache also preserved while disabled.
@@ -42,7 +57,7 @@ They are only needed while awake:
 Depending on your application some hardware blocks need to be enabled both while awake and asleep.
 For instance, in order to debug using REPL or thonny USB blocks must be enabled at all times.
 
-**If you disable a block that your application needs the RP2 processor will stop responding.
+**If you disable a block that your application needs the RP2 processor may stop responding.
 If that happens while coding using REPL or thonny you will need a hard reset by unplugging the USB cable and plugging it back in.**
 ## Files
 
@@ -56,7 +71,8 @@ If that happens while coding using REPL or thonny you will need a hard reset by 
 Everything not needed is disabled.
 A few other blocks are turned on when awake because the system LED is connected to the CYW43 wifi chip.
 If this example was run on a PICO more blocks could be disabled when awake.
-
+* OTHER_POWER_REDUCTION_STRATEGIES.md - Other ways to reduce power to consider before using This code.
+* POWER_MEASUREMENTS.md - Contains power measurements I made using a USB power tester. Compares power reduction using my code in different ways and using lightsleep.
 
 ## How to use
 
@@ -98,6 +114,18 @@ pwr.disable_while_sleeping_all_but(
     pwr.EN0_CLK_SYS_PLL_USB
 )
 ```
+* pwr.enable_while_sleeping() - arguments to this function are hardware blocks you want enabled when sleeping.
+Hardware blocks you do not list are unchanged.
+You can call this function more than once.
+Note: If the argument is empty list no changes are made.
+This function is not that useful. Included for testing.
+```
+pwr.enable_while_sleeping(
+    pwr.EN0_CLK_SYS_SPI1,
+    pwr.EN0_CLK_PERI_SPI
+)
+
+```
 
 There are two similar functions to disable hardware blocks while sleeping:
 * pwr.disable_while_awake() - arguments to this function are hardware blocks you want disabled when sleeping.
@@ -124,6 +152,18 @@ pwr.disable_while_awake_all_but(
     pwr.EN0_CLK_SYS_I2C0
 )
 ```
+* pwr.enable_while_awake() - arguments to this function are hardware blocks you want enabled when awake.
+Hardware blocks you do not list are unchanged.
+You can call this function more than once.
+Note: If the argument is empty list no changes are made.
+This function is useful when there is a hardware block you only need occasionally.
+```
+pwr.enable_while_awake(
+    pwr.EN0_CLK_SYS_SPI1,
+    pwr.EN0_CLK_PERI_SPI
+)
+
+```
 
 The values specified in argument list are constants defined in the PowerCtrl object.
 You can read the source code or do ```help(PowerCtrl)```.
@@ -146,10 +186,3 @@ It displays the current contents of the four registers in hexadecimal.
 * always_safe_RP2040_example.py - a tiny example that disables XIP and SRAM on RP2040. It is always safe to power these down when sleeping.  
 * always_safe_RP2350_example.py - a tiny example that disables XIP and SRAM on RP2350.  It is always safe to power these down when sleeping.  
 * pico_w_example.py - simple code running on PICO W. Toggles the system LED using a Timer. On a regular PICO more hardware could be disabled while awake.
-
-## Power measurements
-
-**Coming soon**
-
-I will provide data on power consumption with various hardware blocks turned off.
-I will also provide data for machine.lightsleep() for comparison.
