@@ -8,8 +8,10 @@ The numbers I report are my eye-ball of the average.
 
 Except where/if noted, all measurements were done running micropython 1.23.0.
 
-Currently I only have Raspberry PI PICO W. I ordered a regular PICO and PICO 1.
-Once they arrive I will include data for them.
+I recently received a new Raspberry PI PICO and PICO W.
+My earlier data for PICO W was a board with an I2C temperature monitor connected.
+I retested with the new PICO and PICO W (with nothing connected).
+Interestingly, now in some tests the PICO W appears to use a little less power than the PICO.
 
 ## Raspberry PI PICO W
 
@@ -22,14 +24,28 @@ The following table reports power usage in milli-amps.
 
 |Test                  |CPU 125 Mhz(default) | CPU 64 Mhz   | CPU 18 Mhz   |
 |----------------------|---------------------|--------------|--------------|
-| busy wait            | 22.02               | 14.62        | 8.16         |
-| normal sleep_ms      | 18.64               | 13.01        | 7.61         |
-| always safe sleep_ms | 17.23               | 12.49        | 7.36         |
-| timer+USB sleep_ms   |  9.13               |  7.83        | 5.86         |
-| timer only sleep_ms  |  6.55               |  5.87        | 4.10         |
-| lightsleep           |  1.51               |  1.51        | 1.51         |
+| busy wait            | 20.94               | 14.09        | 7.76         |
+| normal sleep_ms      | 18.35               | 12.81        | 7.44         |
+| always safe sleep_ms | 17.03               | 12.09        | 7.29         |
+| timer+USB sleep_ms   |  8.69               |  7.47        | 5.85         |
+| timer only sleep_ms  |  6.36               |  5.54        | 4.19         |
+| lightsleep           |  1.29               |  1.29        | 1.29         |
 
 Note: lightsleep always reduce the system clock to 12 Mhz. That is why results are the same for all clocks speeds.
+
+## Raspberry PI PICO
+
+The following table reports power usage in milli-amps.
+
+|Test                  |CPU 125 Mhz(default) | CPU 64 Mhz   | CPU 18 Mhz   |
+|----------------------|---------------------|--------------|--------------|
+| busy wait            | 21.24               | 14.45        | 7.83         |
+| normal sleep_ms      | 18.80               | 13.00        | 7.45         |
+| always safe sleep_ms | 17.30               | 12.36        | 7.25         |
+| timer+USB sleep_ms   |  8.70               |  7.43        | 5.72         |
+| timer only sleep_ms  |  6.68               |  5.50        | 3.98         |
+| lightsleep           |  1.29               |  1.29        | 1.29         |
+
 
 **Busy wait code**
 ```
@@ -52,9 +68,6 @@ freq(125*1000*1000)
 #  sleep_ms 15 seconds
 from time import sleep_ms
 from machine import freq
-
-start = ticks_ms()
-end = start
 
 freq(64*1000*1000)
 
@@ -140,19 +153,10 @@ Note, running micropython 1.23.0 USB will not recover after lightsleep completes
 You will need to power cycle the PICO to recover.
 ```
 from machine import freq, lightsleep
-from power_ctrl_2040 import PowerCtrl
-
-pwr = PowerCtrl()
-
-pwr.disable_while_sleeping_all_but(
-    pwr.EN1_CLK_SYS_TIMER
-)
 
 freq(64*1000*1000)
 
 lightsleep(15000)
 
 freq(125*1000*1000)
-
-pwr.restore()
 ```
