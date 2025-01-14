@@ -12,17 +12,21 @@ class PowerCtrlAbstract :
     __SAVE_SLEEP_EN1  = 0
     __SAVE_WAKE_EN1   = 0
 
-    # Disable specified hardware blocks while RP2 is sleeping.
-    # If called with no arguments does nothing.
-
-    def disable_while_sleeping(self, *args) :
+    def __combine_args(self, args) :
         mask0 = 0
         mask1 = 0
-        for arg in args :
+        for arg in args:
             if arg >= 32 :
                 mask1 |= 1 << (arg - 32)
             else :
                 mask0 |= 1 << arg
+        return mask0, mask1
+    
+    # Disable specified hardware blocks while RP2 is sleeping.
+    # If called with no arguments does nothing.
+
+    def disable_while_sleeping(self, *args) :
+        mask0, mask1 = self.__combine_args(args)
                 
         mem32[self.__SLEEP_EN0] &= ~mask0
         mem32[self.__SLEEP_EN1] &= ~mask1
@@ -34,13 +38,7 @@ class PowerCtrlAbstract :
     # Typically users disable given hardware blocks and leave it that way forever.
     
     def enable_while_sleeping(self, *args) :
-        mask0 = 0
-        mask1 = 0
-        for arg in args :
-            if arg >= 32 :
-                mask1 |= 1 << (arg - 32)
-            else :
-                mask0 |= 1 << arg
+        mask0, mask1 = self.__combine_args(args)
                 
         mem32[self.__SLEEP_EN0] |= mask0
         mem32[self.__SLEEP_EN1] |= mask1
@@ -49,13 +47,7 @@ class PowerCtrlAbstract :
     # If called with no argumentss will disable all hardware blocks.
 
     def disable_while_sleeping_all_but(self, *args) :
-        mask0 = 0
-        mask1 = 0
-        for arg in args :
-            if arg >= 32 :
-                mask1 |= 1 << (arg - 32)
-            else :
-                mask0 |= 1 << arg
+        mask0, mask1 = self.__combine_args(args)
 
         mem32[self.__SLEEP_EN0] &= mask0
         mem32[self.__SLEEP_EN1] &= mask1
@@ -65,13 +57,7 @@ class PowerCtrlAbstract :
     # If called with no arguments does nothing.
 
     def disable_while_awake(self, *args) :
-        mask0 = 0
-        mask1 = 0
-        for arg in args :
-            if arg >= 32 :
-                mask1 |= 1 << (arg - 32)
-            else :
-                mask0 |= 1 << arg
+        mask0, mask1 = self.__combine_args(args)
 
         mem32[self.__WAKE_EN0] &= ~mask0
         mem32[self.__WAKE_EN1] &= ~mask1
@@ -83,13 +69,7 @@ class PowerCtrlAbstract :
     # Note: Useful if given hardware blocks are needed occasionally.
 
     def enable_while_awake(self, *args) :
-        mask0 = 0
-        mask1 = 0
-        for arg in args :
-            if arg >= 32 :
-                mask1 |= 1 << (arg - 32)
-            else :
-                mask0 |= 1 << arg
+        mask0, mask1 = self.__combine_args(args)
 
         mem32[self.__WAKE_EN0] |= mask0
         mem32[self.__WAKE_EN1] |= mask1
@@ -99,22 +79,19 @@ class PowerCtrlAbstract :
     # If called with no arguments  will disable all hardware blocks.
 
     def disable_while_awake_all_but(self, *args) :
-        mask0 = 0
-        mask1 = 0
-        for arg in args :
-            if arg >= 32 :
-                mask1 |= 1 << (arg - 32)
-            else :
-                mask0 |= 1 << arg
-
+        mask0, mask1 = self.__combine_args(args)
+        
         mem32[self.__WAKE_EN0] &= mask0
         mem32[self.__WAKE_EN1] &= mask1
 
     def __str__(self) :
-        return "wake_en0:  %08X wake_en1:  %08X\nsleep_en0: %08X sleep_en1: %08X\n" % (0xffffffff & mem32[self.__WAKE_EN0],
-                                                                                       0xffffffff & mem32[self.__WAKE_EN1],
-                                                                                       0xffffffff & mem32[self.__SLEEP_EN0],
-                                                                                       0xffffffff & mem32[self.__SLEEP_EN1])
+
+        return "wake_en0:  %08X wake_en1:  %08X\nsleep_en0: %08X sleep_en1: %08X" % (
+            0xffffffff & mem32[self.__WAKE_EN0],
+            0xffffffff & mem32[self.__WAKE_EN1],
+            0xffffffff & mem32[self.__SLEEP_EN0],
+            0xffffffff & mem32[self.__SLEEP_EN1]
+        )
     #   Set RP2 wake_enX and sleep_enX registers to their default values
     def restore(self) :
         mem32[self.__SLEEP_EN0] = self.__SAVE_SLEEP_EN0
