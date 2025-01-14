@@ -79,7 +79,7 @@ class PowerCtrl(PowerCtrlAbstract) :
        self.__SLEEP_EN0   = __CLOCK_BASE_2350+0xb4
        self.__SLEEP_EN1   = __CLOCK_BASE_2350+0xb8
 
-        # default values for RP2040
+        # default values for RP2350
        self.__SAVE_SLEEP_EN0  = 0xffffffff;
        self.__SAVE_WAKE_EN0   = 0xffffffff;
        self.__SAVE_SLEEP_EN1  = 0x7fffffff;
