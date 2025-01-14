@@ -6,9 +6,11 @@ Always use time.sleep_ms() or equivalent.
 machine.lightsleep() will set registers SLEEP_EN0 and SLEEP_EN1 to the power on value when it returns.**
 
 **This repository contains support for power control on RP2040 and RP2350.
-But, I do not have any RP2350 boards at this time so, I have not tested my code on RP2350.
-If you try this code on RP2350 and have problems it will be difficult for me to help.
-I plan to buy some 2350 boards soon.**
+I recently acquired an PICO2 and did some testing.
+I do not see any power reduction while sleeping after calling API's disable_while_sleeping() and disable_while_sleeping_all_but().
+There is an issue with the pico-sdk on RP2350, time.sleep_ms() and equivalents are effectively busy wait loops.
+The problem details are captured in issue https://github.com/raspberrypi/pico-sdk/issues/1812.
+The pico-sdk issue is actively being worked and should be fixed in the 1.25.0 preview builds on a week or two.**
 
 ## Why not use machine.lightsleep
 
