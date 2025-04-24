@@ -3,31 +3,33 @@
 ## Important notes
 **With micropython version  1.24.0 or 1.25 preview versions do not use machine.lightsleep() with this code.
 Always use time.sleep_ms() or equivalent.
-machine.lightsleep() will set registers SLEEP_EN0 and SLEEP_EN1 to the power on value when it returns.**
+machine.lightsleep() will set registers SLEEP_EN0 and SLEEP_EN1 to the power on value when it returns.
+This problem is fixed in the official 1.25.0 release**
 
 **This repository contains support for power control on RP2040 and RP2350.
 I recently acquired an PICO2 and did some testing.
 I do not see any power reduction while sleeping after calling API's disable_while_sleeping() and disable_while_sleeping_all_but().
-There is an issue with the pico-sdk on RP2350, time.sleep_ms() and equivalents are effectively busy wait loops.
-The problem details are captured in issue https://github.com/raspberrypi/pico-sdk/issues/1812.
-The pico-sdk issue is actively being worked and should be fixed in the 1.25.0 preview builds on a week or two.**
+There is an issue on RP2350, time.sleep_ms() and equivalents are effectively busy wait loops.
+The problem details are captured in issue https://github.com/micropython/micropython/issues/16562.**
 
 ## Why not use machine.lightsleep
 
 Yes, rather than using this code you could just use machine.lightsleep.
 While machine.lightsleep is running the RP2040 power consumption is very low.
+This is because it powers down one or both PLL blocks in addition to turning off hardware blocks.
+The PLLs consume a considerable amount of power.
 
 lightsleep has issues on RP2040 and RP2350.
 The exact issues you see will depend on which version of micropython you are using.
 
-Fundamentally, lightsleep turns of almost all peripheral blocks and if you need one of those blocks active while sleeping you can't use it.
+Fundamentally, lightsleep turns off almost all peripheral blocks and if you need one of those blocks active while sleeping you can't use it.
 In micropython version 1.23.0 the USB block would be unusable after a lightsleep.
 That was resolved in 1.24.0.
 
 You can not use lightsleep for instance if you want to wakeup due to an interrupt generated from a button press.
 
 ## What this code does
-This micropython code can be used to modify the RP2040 or RP2350 Power Control registers.
+This micropython code can be used to modify the RP2040 or RP2350 SLEEP_EN0/1 and WAKE_EN0/1 power Control registers.
 This can reduce power consumed both:
 * while the chip is awake (at least one core is running or DMA is active),
 * while the chip is sleeping.
